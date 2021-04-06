@@ -9,8 +9,10 @@ jacoco {
     toolVersion = "0.8.6"
 }
 
-group = "com.github.edgsousa"
-version = "0.0.1-SNAPSHOT"
+group = "com.github.edgsousa.ktscheduler" //because of jitpack.io
+if (version.toString() == "unspecified") {
+    version = "0.0.1-SNAPSHOT"
+}
 
 val mockk = "1.11.0"
 val coroutines = "1.4.3"
@@ -32,7 +34,7 @@ kotlin {
         nodejs {
             testTask {
                 useMocha {
-                    timeout = "20000"// mochaTimeout here as string
+                    timeout = "60000"// mochaTimeout here as string
                 }
             }
         }

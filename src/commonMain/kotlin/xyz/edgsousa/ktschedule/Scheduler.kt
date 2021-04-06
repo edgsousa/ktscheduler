@@ -53,28 +53,33 @@ object Scheduler {
 
     @ExperimentalCoroutinesApi
     suspend fun runScheduler() = coroutineScope {
-        while (isActive) {
-            LOG.trace("Peeking Q")
-            val next = mut.withLock { priorityQueue.firstOrNull() }
-            next?.let { it ->
-                notifyChannel.poll() //clear notification
-                LOG.info("Next task at ${it.first}")
-                val timeToTask = now().timeToTaskMillis(it.first)
-                val scope = this
-                timeToTask?.let {
-                    select<Any> {
-                        notifyChannel.onReceive { }
-                        onTimeout(timeToTask) { handleTasks(scope) }
+        try {
+            while (isActive) {
+                LOG.trace("Peeking Q")
+                val next = mut.withLock { priorityQueue.firstOrNull() }
+                next?.let { it ->
+                    notifyChannel.poll() //clear notification
+                    LOG.info("Next task at ${it.first}")
+                    val timeToTask = now().timeToTaskMillis(it.first)
+                    val scope = this
+                    timeToTask?.let {
+                        select<Any> {
+                            notifyChannel.onReceive { }
+                            onTimeout(timeToTask) { handleTasks(scope) }
+                        }
                     }
+                    LOG.trace("End of select")
+                } ?: run {
+                    //null next time, wait for a notification
+                    LOG.trace("Empty task queue")
+                    notifyChannel.receive()
                 }
-                LOG.trace("End of select")
-            } ?: run {
-                //null next time, wait for a notification
-                LOG.trace("Empty task queue")
-                notifyChannel.receive()
+                LOG.trace("End of while")
             }
-            LOG.trace("End of while")
+        } finally {
+            mut.withLock { priorityQueue.clear() }
         }
+        LOG.info("Scheduler finish")
     }
 
     private suspend fun handleTasks(coroutineScope: CoroutineScope) {
