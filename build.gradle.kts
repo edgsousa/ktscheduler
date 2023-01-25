@@ -1,21 +1,18 @@
 
 plugins {
-    kotlin("multiplatform") version "1.4.32"
+    kotlin("multiplatform") version "1.8.0"
     id("maven-publish")
     jacoco
 }
 
-jacoco {
-    toolVersion = "0.8.6"
-}
 
 group = "com.github.edgsousa.ktscheduler" //because of jitpack.io
 if (version.toString() == "unspecified") {
-    version = "0.0.1-SNAPSHOT"
+    version = "0.0.2-SNAPSHOT"
 }
 
-val mockk = "1.11.0"
-val coroutines = "1.4.3"
+val mockk = "1.12.4"
+val coroutines = "1.6.4"
 
 repositories {
     mavenCentral()
@@ -30,7 +27,7 @@ kotlin {
         withJava()
     }
 
-    js {
+    js(IR) {
         nodejs {
             testTask {
                 useMocha {

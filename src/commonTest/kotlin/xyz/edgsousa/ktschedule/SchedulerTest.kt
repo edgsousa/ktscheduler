@@ -45,7 +45,7 @@ class SchedulerTest {
         assertNotEquals(1, tMultiple.i)
 
 
-        delay(600)
+        delay(700)
         println("${now()}: checking result 1 ")
         assertEquals(1, tSingle.i)
         assertEquals(1, tMultiple.i)

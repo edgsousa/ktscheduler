@@ -28,7 +28,7 @@ object Scheduler {
             priorityQueue.add(idx, taskNext to task)
         }
         LOG.trace("Notify")
-        notifyChannel.offer(Unit)
+        notifyChannel.trySend(Unit)
     }
 
     private fun Instant.timeToTaskMillis(taskNext: Instant?): Long? {
@@ -58,7 +58,7 @@ object Scheduler {
                 LOG.trace("Peeking Q")
                 val next = mut.withLock { priorityQueue.firstOrNull() }
                 next?.let { it ->
-                    notifyChannel.poll() //clear notification
+                    notifyChannel.tryReceive().getOrNull() //clear notification
                     LOG.info("Next task at ${it.first}")
                     val timeToTask = now().timeToTaskMillis(it.first)
                     val scope = this
